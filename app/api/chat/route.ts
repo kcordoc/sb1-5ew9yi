@@ -1,11 +1,13 @@
-import { Configuration, OpenAIApi } from "openai-edge";
 import { OpenAIStream, StreamingTextResponse } from "ai";
+import OpenAI from 'openai';
 
-const config = new Configuration({
+const openai = new OpenAI({
   apiKey: process.env.GROQ_API_KEY,
-  baseURL: "https://api.groq.com/openai/v1",
+  baseURL: 'https://api.groq.com/openai/v1',
 });
-const openai = new OpenAIApi(config);
+
+export const dynamic = 'force-dynamic';
+
 
 export const runtime = 'edge';
 
@@ -20,16 +22,14 @@ After the conversation, summarize the key points. Be empathetic, supportive, and
 export async function POST(req: Request) {
   const { messages } = await req.json();
 
-  const response = await openai.createChatCompletion({
+  const response = await openai.chat.completions.create({
     model: "mixtral-8x7b-32768",
     messages: [
       { role: "system", content: systemPrompt },
       ...messages,
     ],
     temperature: 0.7,
-    max_tokens: 1000,
-    top_p: 1,
-    stream: true,
+    stream:true
   });
 
   const stream = OpenAIStream(response);
